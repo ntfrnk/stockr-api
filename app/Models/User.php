@@ -45,4 +45,23 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function stores()
+    {
+        return $this->belongsToMany(Store::class, 'role_store_user')
+            ->withPivot('role_id')
+            ->withTimestamps();
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_store_user')
+            ->withPivot('store_id')
+            ->withTimestamps();
+    }
+
+    public function storeRoles()
+    {
+        return $this->hasMany(RoleStoreUser::class);
+    }
 }
