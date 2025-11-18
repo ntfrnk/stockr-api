@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('purchase_payments', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('sale_id')->constrained()->onDelete('cascade');
+            $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained()->onDelete('restrict');
             $table->foreignId('payment_entity_id')->constrained()->onDelete('restrict');
 

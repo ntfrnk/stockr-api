@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->foreignId('purchase_status_id')->constrained()->onDelete('cascade');
+            $table->foreignId('sale_status_id')->constrained()->onDelete('cascade');
             
             $table->string('number')->nullable();
             $table->dateTime('date')->default(now());
