@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SalePayment extends Model
+class PurchasePayment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'sale_id',
+        'purchase_id',
         'payment_method_id',
         'payment_entity_id',
         'amount',
@@ -31,9 +31,9 @@ class SalePayment extends Model
      |  RELACIONES
      ============================================================ */
 
-    public function sale()
+    public function purchase()
     {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(Purchase::class);
     }
 
     public function method()
@@ -91,7 +91,7 @@ class SalePayment extends Model
      ============================================================ */
 
     /**
-     * Nombre del método de pago (ej: "Efectivo", "Tarjeta", "Transferencia").
+     * Nombre del método de pago (ej: "Transferencia", "Efectivo").
      */
     public function methodName(): string
     {
@@ -99,7 +99,7 @@ class SalePayment extends Model
     }
 
     /**
-     * Nombre de la entidad financiera (banco, billetera virtual, etc.).
+     * Nombre de la entidad financiera (banco, billetera, etc.).
      */
     public function entityName(): string
     {
@@ -107,7 +107,7 @@ class SalePayment extends Model
     }
 
     /**
-     * Slug del método de pago (para validaciones y lógica).
+     * Slug del método de pago.
      */
     public function methodSlug(): string
     {
@@ -115,7 +115,7 @@ class SalePayment extends Model
     }
 
     /**
-     * Saber si el pago es por transferencia bancaria, etc.
+     * Verificar si el método de pago es uno específico.
      */
     public function isMethod(string $slug): bool
     {
@@ -144,13 +144,13 @@ class SalePayment extends Model
     }
 
     /**
-     * Vista completa para dashboards internos o detalle avanzado.
+     * Detalle completo para dashboards o vistas avanzadas.
      */
     public function fullDetail()
     {
         return [
             'id'             => $this->id,
-            'sale'           => $this->sale,
+            'purchase'       => $this->purchase,
             'method'         => $this->method,
             'entity'         => $this->entity,
             'amount'         => (float) $this->amount,

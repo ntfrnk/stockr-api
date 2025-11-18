@@ -4,17 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Sale extends Model
+class Purchase extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'store_id',
         'user_id',
-        'client_id',
-        'sale_status_id',
+        'purchase_status_id',
         'number',
         'date',
         'notes',
@@ -38,27 +36,22 @@ class Sale extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
-
     public function status()
     {
-        return $this->belongsTo(SaleStatus::class, 'sale_status_id');
+        return $this->belongsTo(PurchaseStatus::class, 'purchase_status_id');
     }
 
     public function items()
     {
-        return $this->hasMany(SaleItem::class);
+        return $this->hasMany(PurchaseItem::class);
     }
 
     public function payments()
     {
-        return $this->hasMany(SalePayment::class);
+        return $this->hasMany(PurchasePayment::class);
     }
 
-    // Relación polimórfica para movimientos
+    // Relación polimórfica con movimientos
     public function movements()
     {
         return $this->morphMany(Movement::class, 'movementable');
@@ -66,27 +59,25 @@ class Sale extends Model
 
 
     /* ============================================================
-     |  HELPERS AVANZADOS: CALCULOS
+     |  HELPERS AVANZADOS: CALCULOS FINANCIEROS
      ============================================================ */
 
     /**
-     * Subtotal de la venta (sin descuentos globales).
+     * Subtotal = suma de (cantidad * costo unitario)
      */
     public function subtotal(): float
     {
         return (float) $this->items()
-            ->selectRaw('SUM(quantity * sale_price) as subtotal')
+            ->selectRaw('SUM(quantity * cost_price) as subtotal')
             ->value('subtotal') ?? 0;
     }
 
     /**
-     * Total considerando descuentos por ítem.
+     * Total = subtotal (si agregás impuestos o descuentos, se pueden sumar acá)
      */
     public function total(): float
     {
-        return (float) $this->items()
-            ->selectRaw('SUM((quantity * sale_price) - discount) as total')
-            ->value('total') ?? 0;
+        return $this->subtotal();
     }
 
     /**
@@ -100,7 +91,7 @@ class Sale extends Model
     }
 
     /**
-     * Saldo pendiente de pago.
+     * Saldo pendiente.
      */
     public function balance(): float
     {
@@ -108,9 +99,9 @@ class Sale extends Model
     }
 
     /**
-     * Saber si la venta está completamente pagada.
+     * Determina si la compra está completamente pagada.
      */
-    public function isPaid(): bool
+    public function isFullyPaid(): bool
     {
         return $this->balance() <= 0;
     }
@@ -121,7 +112,7 @@ class Sale extends Model
      ============================================================ */
 
     /**
-     * Saber si la venta tiene productos cargados.
+     * Saber si esta compra tiene ítems cargados.
      */
     public function hasItems(): bool
     {
@@ -142,7 +133,7 @@ class Sale extends Model
      ============================================================ */
 
     /**
-     * Obtener el nombre del estado.
+     * Nombre del estado.
      */
     public function statusName(): string
     {
@@ -150,7 +141,7 @@ class Sale extends Model
     }
 
     /**
-     * Saber si está en un estado específico por slug.
+     * Saber si está en un estado específico (por slug).
      */
     public function isStatus(string $slug): bool
     {
@@ -158,7 +149,7 @@ class Sale extends Model
     }
 
     /**
-     * Saber si es una venta cancelada.
+     * Ejemplo: saber si está marcada como "cancelada".
      */
     public function isCancelled(): bool
     {
@@ -166,7 +157,7 @@ class Sale extends Model
     }
 
     /**
-     * Saber si la venta fue completada.
+     * Ejemplo: saber si ya fue recibida/completada.
      */
     public function isCompleted(): bool
     {
@@ -175,18 +166,17 @@ class Sale extends Model
 
 
     /* ============================================================
-     |  HELPERS PARA API / PRESENTACIÓN
+     |  HELPERS PARA API / RESPUESTAS JSON
      ============================================================ */
 
     /**
-     * Resumen óptimo para listar ventas en API.
+     * Resumen para listar compras en API o dashboard.
      */
     public function summary()
     {
         return [
             'id'       => $this->id,
             'number'   => $this->number,
-            'client'   => optional($this->client)->name,
             'date'     => $this->date->format('Y-m-d H:i:s'),
             'total'    => $this->total(),
             'paid'     => $this->totalPaid(),
@@ -202,10 +192,9 @@ class Sale extends Model
     {
         return [
             'id'         => $this->id,
-            'number'     => $this->number,
             'store_id'   => $this->store_id,
             'user_id'    => $this->user_id,
-            'client'     => $this->client,
+            'number'     => $this->number,
             'date'       => $this->date,
             'items'      => $this->items,
             'subtotal'   => $this->subtotal(),
