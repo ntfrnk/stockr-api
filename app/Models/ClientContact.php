@@ -14,6 +14,11 @@ class ClientContact extends Model
         'type',
         'value',
         'notes',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => 'integer',
     ];
 
     public function client()

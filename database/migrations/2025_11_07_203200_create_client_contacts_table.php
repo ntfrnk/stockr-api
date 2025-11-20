@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('client_contacts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->string('phone');
+            $table->string('type');
+            $table->string('value');
+            $table->text('notes')->nullable();
             $table->integer('status')->default('1');
             $table->timestamps();
         });

@@ -14,13 +14,11 @@ return new class extends Migration
         Schema::create('client_locations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->string('street_name')->nullable();
-            $table->integer('street_number')->nullable();
-            $table->integer('country')->default('1');
-            $table->integer('state')->default('1');
-            $table->integer('city')->default('1');
-            $table->integer('postal_code')->nullable();
-            $table->integer('status')->default('1');
+            $table->string('address')->nullable();
+            $table->foreignId('city_id')->nullable()->constrained('cities');
+            $table->string('postal_code')->nullable();
+            $table->text('notes')->nullable();
+            $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });
     }
