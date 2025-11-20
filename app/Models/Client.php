@@ -12,6 +12,7 @@ class Client extends Model
     protected $fillable = [
         'store_id',
         'name',
+        'lastname',
         'email',
         'phone',
         'address',
@@ -46,7 +47,9 @@ class Client extends Model
      */
     public function displayName(): string
     {
-        return $this->name ?: 'Cliente sin nombre';
+        $fullName = trim($this->name . ' ' . ($this->lastname ?? ''));
+
+        return $fullName !== '' ? $fullName : 'Cliente sin nombre';
     }
 
     /**
